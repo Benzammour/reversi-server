@@ -1,0 +1,74 @@
+<project name="reversi-server" basedir="." default="dist">
+
+    <property name="main.src.dir" value="src/main/java"/>
+    <property name="test.src.dir" value="src/test/java"/>
+    <property name="build.dir"      value="bin"/>
+    <property name="lib.dir"        value="lib"/>
+
+    <property name="main.classes.dir"    value="${build.dir}/main-classes"/>
+    <property name="test.classes.dir"    value="${build.dir}/test-classes"/>
+    <property name="test.reports.dir"    value="${build.dir}/test-report"/>
+    
+    <property name="main.res.dir"    value="src/main/res"/>
+    <property name="test.res.dir"    value="src/test/testres"/>
+
+    <property name="jar.dir"        value="${build.dir}/jar"/>
+    <property name="dist"           location="dist"/>
+    <property name="main-class"     value="ReversiMain"/>
+
+    <path id="classpath">
+        <pathelement location="${main.classes.dir}"/>
+    </path>
+
+    <path id="test.classpath">
+        <pathelement path="${main.classes.dir}"/>
+        <pathelement path="${test.classes.dir}"/>
+        <pathelement path="${test.res.dir}" />
+        <pathelement path="${main.res.dir}" />
+        <fileset dir="${basedir}/lib" includes="*.jar" />
+    </path>
+
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${main.classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${test.reports.dir}"/>
+        <delete dir="out"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist}"/>
+        <delete dir="out"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${main.src.dir}" destdir="${main.classes.dir}" includeantruntime="false" debug="true" debuglevel="lines,vars,source" />
+    </target>
+
+    <target name="test-compile" depends="init">
+        <javac srcdir="${test.src.dir}" destdir="${test.classes.dir}" classpathref="test.classpath" includeantruntime="false" debug="true" debuglevel="lines,vars,source" />
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.dir}/${ant.project.name}-group1.jar" basedir="${main.classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+            <fileset dir="src/main/res"/>
+        </jar>
+    </target>
+
+
+    <target name="dist" depends="jar">
+        <mkdir dir="${dist}/lib"/>
+        <jar jarfile="${dist}/lib/${ant.project.name}.jar" basedir="${build.dir}"/>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+    </target>
+
+    <target name="main" depends="clean,run"/>
+</project>
