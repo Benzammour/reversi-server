@@ -27,8 +27,7 @@ public class GameMap extends GenericMap {
 	    String[] mapLines = mapString.lines().toArray(String[]::new);
 
 		// GameMap settings
-
-		String[] s = mapLines[3].split(" ");
+		String[] s = mapLines[0].split(" ");
 		mapHeight = Short.parseShort(s[0]);
 		mapWidth = Short.parseShort(s[1]);
 
@@ -37,7 +36,7 @@ public class GameMap extends GenericMap {
 		// Game map
 		map = new char[mapHeight][mapWidth];
 		for (short i = 0; i < mapHeight; i++) {
-			char[] line = mapLines[4 + i].replaceAll(" ", "").toCharArray();
+			char[] line = mapLines[1 + i].replaceAll(" ", "").toCharArray();
 			for (int j = 0; j < line.length; j++) {
 				map[i][j] = line[j];
 
@@ -49,12 +48,6 @@ public class GameMap extends GenericMap {
 		}
 	}
 
-	/**
-	 * Reads in valid playing fields and represents them using this class.
-	 * The data structure main.java.map (2D-Array and Graph) is supposed to represent the actual playing tiles.
-	 *
-	 * @param mapName specifies the name of the map that has to be located in res/maps
-	 */
 	public void generateStringFromMapFile(String mapName) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapName))))) {
 			generateMapFromString(br.lines().collect(Collectors.joining("\n")));

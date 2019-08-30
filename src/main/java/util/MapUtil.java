@@ -129,14 +129,12 @@ public class MapUtil {
         return sb.toString();
     }
 
-    public static Set<Triplet> getMovesForPlayer(boolean[] inTime, GenericMap map, char player, boolean allowOverrideStones) {
-        Set<Triplet> moves = new HashSet<>();
+    public static Set<Tuple> getMovesForPlayer(GenericMap map, char player) {
+        Set<Tuple> moves = new HashSet<>();
         for (int i = 0; i < map.getMap().length; i++) {
             for (int j = 0; j < map.getMap()[0].length; j++) {
-                if (!inTime[0]) {
-                    return moves;
-                } else if (map.isMoveValidExtended(j, i, player, true)) {
-                    moves.add(new Triplet(j, i, 0));
+                if (map.isMoveValid(i, j, player)) {
+                    moves.add(new Tuple(j, i));
                 }
             }
         }

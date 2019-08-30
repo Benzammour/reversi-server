@@ -27,24 +27,16 @@ public class GenericMap {
             {1, 1, 3}, {0, 1, 4}, {-1, 1, 5}, {-1, 0, 6}, {-1, -1, 7}};
 
 
-    public void move(int x, int y, char player, char choiceStonePlayer, int bonus) {
+    public void move(int x, int y, char player, int bonus) {
         if (!isMoveValid(x, y, player)) {
             System.err.println("Player " + player + " attempting move at (" + x + ", " + y + ") is not valid!\n"
                                 + "Tile: " + map[y][x]);
             System.err.println(MapUtil.renderMap(map));
         }
 
-        executeMove(x, y, player, choiceStonePlayer, bonus);
+        executeMove(x, y, player, bonus);
     }
 
-    /**
-     * Checks whether or not the specified move is valid
-     *
-     * @param x coordinate of placed stone
-     * @param y coordinate of placed stone
-     * @param player the character that represents the player doing the move
-     * @return returns whether the move at the given coordinates in the given phase by the given player, was valid
-     */
     public boolean isMoveValid(int x, int y, char player) {
         return isMoveValidExtended(x, y, player, false);
     }
@@ -111,7 +103,7 @@ public class GenericMap {
 
     }
 
-    public void executeMove(int x, int y, char player, char choiceStonePlayer, int bonus) {
+    public void executeMove(int x, int y, char player, int bonus) {
         int playerId = Character.getNumericValue(player);
 
             // Remove remaining Triplets with R (third coordinate) > 0
