@@ -7,7 +7,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 
 /**
  * Created by benzammour on August, 2019
@@ -17,12 +16,12 @@ public class ServerWorker extends Thread {
 	private Socket client;
 	private DataInputStream is;
 	private DataOutputStream os;
-	private byte id;
+	private byte playerID;
 
 	ServerWorker(Server server, Socket client, byte id) {
 		this.server = server;
 		this.client = client;
-		this.id = id;
+		this.playerID = id;
 	}
 
 	@Override
@@ -40,25 +39,26 @@ public class ServerWorker extends Thread {
 		Tuple coord = getMoveReponse();
 
 		// move
-		if (!GameMap.getInstance().isMoveValid(coord.x, coord.y, (char) ('0' + id))) {
+		if (!GameMap.getInstance().isMoveValid(coord.x, coord.y, (char) ('0' + playerID))) {
         	// TODO: Disqualify
 			System.err.println("doesnt work mate");
 		}
-		GameMap.getInstance().move(coord.x, coord.y, (char) ('0' + id), 20);
+		System.err.println("received move: " + coord + " from player" + playerID);
+		GameMap.getInstance().executeMove(coord.x, coord.y,  (char) ('0' + playerID));
 
 		// broadcast move to all other players
 		for (ServerWorker sw : server.getWorker()) {
-			sw.getOs().writeByte(6);  // code
+			sw.getOs().writeByte(5);  // code
 			sw.getOs().writeInt(5);  // length
 			sw.getOs().writeShort(coord.x);
 			sw.getOs().writeShort(coord.y);
-			sw.getOs().writeByte(id);
+			sw.getOs().writeByte(playerID);
 		}
 	}
 
 	public Tuple getMoveReponse() throws IOException {
 		try {
-			if (is.readByte() != 5) { // code (5)
+			if (is.readByte() != 4) { // code (5)
 				// TODO: disqualify
 			}
 			if (is.readInt() != 4) {
@@ -72,7 +72,7 @@ public class ServerWorker extends Thread {
 	}
 
 	public void requestMove() throws IOException {
-		os.writeByte(4);  // code
+		os.writeByte(3);  // code
 		os.writeInt(5);  // length
 		os.writeInt(1000);  // time limit
 		os.writeByte(0);  // max depth limit; 0 = unlimited
@@ -80,9 +80,14 @@ public class ServerWorker extends Thread {
 
 	public void sendPlayerNumber() throws IOException {
 		// send map
-		os.writeByte(3);
+		os.writeByte(2);
 		os.writeInt(1);
-		os.writeByte(id);
+		os.writeByte(playerID);
+	}
+
+	public void announceEnd() throws IOException {
+		os.writeByte(7);  // code
+		os.writeInt(0);  // length
 	}
 
 	public void sendString(byte code, int payloadLength, String payload) throws IOException {
@@ -100,6 +105,10 @@ public class ServerWorker extends Thread {
 		}
 	}
 
+	public byte getPlayerID() {
+		return playerID;
+	}
+
 	public Socket getClient() {
 		return client;
 	}
@@ -111,5 +120,4 @@ public class ServerWorker extends Thread {
 	public DataOutputStream getOs() {
 		return os;
 	}
-
 }

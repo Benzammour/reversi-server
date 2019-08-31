@@ -72,10 +72,16 @@ public class MapUtil {
         for (int k = 0; k < 4; k++) {
             // Checks whether a path via a transition can be enclosed
             // Check the potential neighbour in direction k
-            neighbour = new Tuple(x + GameMap.getCORNERS()[k][0], y + GameMap.getCORNERS()[k][1]);
+            transition = gameMap.getTransitions().get(new Triplet(x, y, k));
+            neighbour = (transition != null)
+                    ? new Tuple(transition.getX(), transition.getY())
+                    : new Tuple(x + GameMap.getCORNERS()[k][0], y + GameMap.getCORNERS()[k][1]);
 
             // Check the potential opposite neighbour in direction k + 4
-            oppositeNeighbour = new Tuple(x + GameMap.getCORNERS()[k + 4][0], y + GameMap.getCORNERS()[k + 4][1]);
+            transition = gameMap.getTransitions().get(new Triplet(x, y, k + 4));
+            oppositeNeighbour = (transition != null)
+                    ? new Tuple(transition.getX(), transition.getY())
+                    : new Tuple(x + GameMap.getCORNERS()[k + 4][0], y + GameMap.getCORNERS()[k + 4][1]);
 
             // Returns null if there is a pair of neighbours around the tile (x,y) in opposite directions
             if (MapUtil.isTileCaptureableAndInMap(neighbour.getX(), neighbour.getY())
@@ -97,17 +103,16 @@ public class MapUtil {
     /**
      *
      * @param map the map of the specific game state
-     * @param player
      * @return the number of the player with the maximum amount of stones
      */
-    public static char maxNumberOfStones(GenericMap map, char player) {
+    public static char maxNumberOfStones(GenericMap map) {
         int max = 0;
-        int result = Character.getNumericValue(player);
-        int[] nStones = map.getNumberOfStones();
+        int result = 0;
+        int[] stones = map.getNumberOfStones();
 
-        for (int i = 1; i <= 2; i++) { // 2 = number of players
-            if (nStones[i] > max) {
-                max = nStones[i];
+        for (int i = 1; i <= 2; i++) {  // 2 = number of players
+            if (stones[i] > max) {
+                max = stones[i];
                 result = i;
             }
         }
@@ -129,12 +134,12 @@ public class MapUtil {
         return sb.toString();
     }
 
-    public static Set<Tuple> getMovesForPlayer(GenericMap map, char player) {
-        Set<Tuple> moves = new HashSet<>();
+    public static Set<Triplet> getMovesForPlayer(GenericMap map, char player) {
+        Set<Triplet> moves = new HashSet<>();
         for (int i = 0; i < map.getMap().length; i++) {
             for (int j = 0; j < map.getMap()[0].length; j++) {
-                if (map.isMoveValid(i, j, player)) {
-                    moves.add(new Tuple(j, i));
+                if (map.isMoveValid(j, i, player)) {
+                    moves.add(new Triplet(j, i, 0));
                 }
             }
         }

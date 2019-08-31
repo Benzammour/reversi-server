@@ -24,7 +24,9 @@ public class GameMap extends GenericMap {
 	}
 
 	public void generateMapFromString(String mapString) {
-	    String[] mapLines = mapString.lines().toArray(String[]::new);
+		String[] mapLines = mapString.lines().toArray(String[]::new);
+
+		System.out.println(mapString);
 
 		// GameMap settings
 		String[] s = mapLines[0].split(" ");
@@ -46,24 +48,5 @@ public class GameMap extends GenericMap {
 				}
 			}
 		}
-	}
-
-	public void generateStringFromMapFile(String mapName) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapName))))) {
-			generateMapFromString(br.lines().collect(Collectors.joining("\n")));
-		} catch (IOException e) {
-			System.err.println("Couldn't read file.");
-			e.printStackTrace();
-		}
-	}
-
-	/* ----------- Getter/Setter ----------- */
-
-	public void setPlayer(int player) {
-		this.player = (char) ('0' + player);
-	}
-
-	public char getPlayer() {
-		return player;
 	}
 }

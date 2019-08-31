@@ -9,6 +9,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 // Created by benzammour
@@ -69,7 +71,7 @@ public class Server extends Thread {
         // send map to clients
         try {
             for (ServerWorker sw : worker) {
-                sw.sendString((byte) 2, map.getBytes().length, map);
+                sw.sendString((byte) 1, map.getBytes().length, map);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,19 +86,28 @@ public class Server extends Thread {
             e.printStackTrace();
         }
 
-        int c = 0;
-        while (!MapUtil.getMovesForPlayer(GameMap.getInstance(), (char) ('0' + (turn % 2))).isEmpty()) {
-            try {
-                worker.get(turn).handleMove();
+        // game loop
+        while (!MapUtil.getMovesForPlayer(GameMap.getInstance(), (char) ('0' + worker.get((turn + 1) % 2).getPlayerID())).isEmpty()) {
+			System.out.println(GameMap.getInstance().toString());
+        	try {
+                worker.get((turn + 1) % 2).handleMove();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             turn = (turn + 1) % 2;
-
-            System.out.println(GameMap.getInstance().toString());
-            c++;
         }
+
+        // announce winner & that the game has ended
+		System.out.println("Player " + MapUtil.maxNumberOfStones(GameMap.getInstance()) + " has won.");
+		try {
+			for (ServerWorker sw : worker) {
+				sw.announceEnd();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
     }
 
 

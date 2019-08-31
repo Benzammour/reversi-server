@@ -1,12 +1,13 @@
 package map;
 
+
 import util.MapUtil;
 import util.Triplet;
 import util.Tuple;
 
 import java.util.*;
 
-public class GenericMap {
+public class GenericMap implements Cloneable {
 
     protected char[][] map;
 
@@ -17,39 +18,30 @@ public class GenericMap {
     // Is counted up in prepareMapData and in executeMove when going along the enclosed paths
     protected int[] numberOfStones;
 
-    protected Set<Triplet> paths = new HashSet<>();
+    protected static Map<Triplet, Triplet> transitions = new HashMap<>();
 
-    // Corners are summed up when player number is assigned in prepareMapData
-    protected static Set<Tuple> corners = new HashSet<>();
+    protected Set<Triplet> paths = new HashSet<>();
 
     // x, y, r; means first is the x-coord, then y-coord and then the direction
     protected static final int[][] CORNERS = {{0, -1, 0}, {1, -1, 1}, {1, 0, 2},
             {1, 1, 3}, {0, 1, 4}, {-1, 1, 5}, {-1, 0, 6}, {-1, -1, 7}};
 
-
-    public void move(int x, int y, char player, int bonus) {
+    public void move(int x, int y, char player) {
         if (!isMoveValid(x, y, player)) {
             System.err.println("Player " + player + " attempting move at (" + x + ", " + y + ") is not valid!\n"
-                                + "Tile: " + map[y][x]);
+                    + "Tile: " + map[y][x]);
             System.err.println(MapUtil.renderMap(map));
         }
 
-        executeMove(x, y, player, bonus);
+        executeMove(x, y, player);
     }
 
     public boolean isMoveValid(int x, int y, char player) {
-        return isMoveValidExtended(x, y, player, false);
-    }
-
-    public boolean isMoveValidExtended(int x, int y, char player, boolean returnAfterFirstPossibleMove) {
         paths.clear();
 
-        if (!MapUtil.isCoordinateInMap(x, y)) {
+        if (!MapUtil.isCoordinateInMap(x, y) || MapUtil.isTileHole(map[y][x]) || !MapUtil.isTileFree(GameMap.getInstance().getMap()[y][x])) {
             return false;
         }
-
-        // Used for allowing an override action without actually enclosing a path on an expansion stone!
-        boolean expansionStoneAllowed = false;
 
         // Check whether the coordinate encloses a path
         // Therefore check whether the coordinate neighbours a different stone
@@ -57,9 +49,8 @@ public class GenericMap {
         int currentY;
         int direction;
         Set<Triplet> path;
-        boolean result = expansionStoneAllowed;
+        boolean result = false;
 
-        // Add start stone to paths, so it wont't be passed when looking for a path
         for (int i = 0; i < 8; i++) {
             paths.add(new Triplet(x, y, i));
         }
@@ -85,10 +76,6 @@ public class GenericMap {
             // If stone that comes now is of player, we have a valid path
             if (path.size() > 0 && MapUtil.isCoordinateInMap(currentX, currentY) && map[currentY][currentX] == player &&
                     (x != currentX || y != currentY)) {
-                if (returnAfterFirstPossibleMove) {
-                    return true;
-                }
-
                 result = true;
 
                 // path is valid, add path
@@ -100,33 +87,31 @@ public class GenericMap {
         }
 
         return result;
-
     }
 
-    public void executeMove(int x, int y, char player, int bonus) {
+    public void executeMove(int x, int y, char player) {
         int playerId = Character.getNumericValue(player);
 
-            // Remove remaining Triplets with R (third coordinate) > 0
-            for (int i = 1; i < 8; i++) {
-                paths.remove(new Triplet(x, y, i));
+        for (int i = 1; i < 8; i++) {
+            paths.remove(new Triplet(x, y, i));
+        }
+
+        paths.forEach(tuple -> {
+            char tile = map[tuple.getY()][tuple.getX()];
+
+            // If a special tile is encountered, ignore, as it's dealt with separately
+            if (MapUtil.isPlayerTile(tile)) {
+                numberOfStones[Character.getNumericValue(tile)]--;
             }
 
-            paths.forEach(tuple -> {
-                char tile = map[tuple.getY()][tuple.getX()];
-
-                if (MapUtil.isPlayerTile(tile)) {
-                    numberOfStones[Character.getNumericValue(tile)]--;
-                }
-
-                numberOfStones[playerId]++;
-                map[tuple.getY()][tuple.getX()] = player;
-            });
+            numberOfStones[playerId]++;
+            map[tuple.getY()][tuple.getX()] = player;
+        });
 
         paths.clear();
     }
 
-    /* ----------- Getter/Setter ----------- */
-
+    // -----------------------------------------------  Getter/Setter
     public char[][] getMap() {
         return map;
     }
@@ -139,12 +124,8 @@ public class GenericMap {
         return mapWidth;
     }
 
-    public Set<Triplet> getPaths() {
-        return paths;
-    }
-
-    public Set<Tuple> getCorners() {
-        return corners;
+    public Map<Triplet, Triplet> getTransitions() {
+        return transitions;
     }
 
     public int[] getNumberOfStones() {
@@ -155,8 +136,7 @@ public class GenericMap {
         return CORNERS;
     }
 
-    /* ----------- Object overrides ----------- */
-
+    // ---------------------------------  Object Overrides
     @Override
     public String toString() {
         return MapUtil.renderMap(map);
