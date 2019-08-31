@@ -14,7 +14,7 @@ In this version of reversi we use custom maps to play the game, how they are bui
 
 ### Board structure
 
-The board starts with two integers separated by an space which represent the width and height of the map. The next lines represent the map layout where `0` represents a free tile, `1` and `2` represent player tiles (where they start out), and `-` represents a [hole](#extended-rules) in the map.  
+The board starts with two integers separated by an space which represent the width and height of the map. The next lines represent the map layout where `0` represents a free tile, `1` and `2` represent player tiles (where they start out), and `-` represents a [hole](#extended-rules) in the map. The biggest a map can be in either direction is 50 tiles, so the biggest map would be a 50x50 map.
 
 An example of a map:
 

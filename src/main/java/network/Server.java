@@ -50,6 +50,27 @@ public class Server extends Thread {
             e.printStackTrace();
         }
 
+        // load map
+        BufferedReader br = null;
+        if (customMap) {
+            try {
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(mapPath)));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapPath))));
+        }
+        map = br.lines().collect(Collectors.joining("\n"));
+
+        // process map
+        GameMap.getInstance().generateMapFromString(map);
+        if (GameMap.getInstance().getMapHeight() > 50 || GameMap.getInstance().getMapWidth() > 50) {
+            if (!silent)
+                System.err.println("Map is too big.");
+            System.exit(-1);
+        }
+
         // establish connection with clients
         while (clientCount < 2) {
             clientCount++;
@@ -68,22 +89,6 @@ public class Server extends Thread {
             worker.add(sw);
             sw.start();
         }
-
-        // load map
-        BufferedReader br = null;
-        if (customMap) {
-            try {
-                br = new BufferedReader(new InputStreamReader(new FileInputStream(mapPath)));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else {
-            br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapPath))));
-        }
-        map = br.lines().collect(Collectors.joining("\n"));
-
-        // process map
-        GameMap.getInstance().generateMapFromString(map);
 
         // send map to clients
         try {
