@@ -2,9 +2,6 @@ package util;
 
 import java.util.Objects;
 
-/**
- * Created by Marc Luque on 05.04.2019.
- */
 public class Triplet {
 
     private int x;

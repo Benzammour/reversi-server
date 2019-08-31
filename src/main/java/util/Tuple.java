@@ -2,9 +2,6 @@ package util;
 
 import java.util.Objects;
 
-/**
- * Created by Marc Luque on 08.04.2019.
- */
 public class Tuple {
 
     public final int x;

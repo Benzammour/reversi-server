@@ -6,9 +6,6 @@ import map.GenericMap;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by Marc Luque on 24.04.2019.
- */
 public class MapUtil {
 
     private static final GameMap gameMap = GameMap.getInstance();

@@ -16,15 +16,29 @@ public class Server extends Thread {
 
     private final ArrayList<ServerWorker> worker = new ArrayList<>();
 
-    public Server(int port) {
+    private final boolean silent;
+
+    private boolean customMap;
+
+    private String mapPath;
+
+    public Server(int port, boolean silent, String mapPath) {
         this.port = port;
+        this.silent = silent;
+        this.mapPath = mapPath;
+        if (!mapPath.equals(""))
+            customMap = true;
     }
 
     @Override
     public void run() {
         byte clientCount = 0;
         int turn = 0;
-        String mapName = "2holes1map.txt";
+
+        if (mapPath.equals("")) {
+            mapPath = "trivial.txt";
+        }
+
         String map = "";
         ServerSocket serverSocket = null;
 
@@ -45,23 +59,29 @@ public class Server extends Thread {
                 e.printStackTrace();
             }
 
-            System.out.println("Accepted new connection: " + client);
-            ServerWorker sw = new ServerWorker(this, client, clientCount);
+            if (!silent) {
+                System.out.println("Accepted new connection: " + client);
+            }
+            ServerWorker sw = new ServerWorker(this, client, clientCount, silent);
             worker.add(sw);
             sw.start();
         }
 
         // load map
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapName))))) {
-            map = br.lines().collect(Collectors.joining("\n"));
-        } catch (IOException e) {
-            System.err.println("Couldn't read file.");
-            e.printStackTrace();
+        BufferedReader br = null;
+        if (customMap) {
+            try {
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(mapPath)));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else {
+            br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream(String.format("maps/%s", mapPath))));
         }
+        map = br.lines().collect(Collectors.joining("\n"));
 
         // processes map
         GameMap.getInstance().generateMapFromString(map);
-        System.out.println(GameMap.getInstance().toString());
 
         // send map to clients
         try {
@@ -83,7 +103,9 @@ public class Server extends Thread {
 
         // game loop
         while (!MapUtil.getMovesForPlayer(GameMap.getInstance(), (char) ('0' + worker.get((turn + 1) % 2).getPlayerID())).isEmpty()) {
-			System.out.println(GameMap.getInstance().toString());
+            if (!silent) {
+                System.out.println(GameMap.getInstance().toString());
+            }
         	try {
                 worker.get((turn + 1) % 2).handleMove();
             } catch (IOException e) {
@@ -94,7 +116,9 @@ public class Server extends Thread {
         }
 
         // announce winner & game end
-		System.out.println("Player " + MapUtil.maxNumberOfStones(GameMap.getInstance()) + " has won.");
+        if (!silent) {
+            System.out.println("Player " + MapUtil.maxNumberOfStones(GameMap.getInstance()) + " has won.");
+        }
 		try {
 			for (ServerWorker sw : worker) {
 				sw.announceEnd();

@@ -8,18 +8,24 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-@SuppressWarnings("StatementWithEmptyBody")
 class ServerWorker extends Thread {
 	private final Server server;
+
 	private final Socket client;
+
 	private DataInputStream is;
+
 	private DataOutputStream os;
+
 	private final byte playerID;
 
-	ServerWorker(Server server, Socket client, byte id) {
+	private final boolean silent;
+
+	ServerWorker(Server server, Socket client, byte id, boolean silent) {
 		this.server = server;
 		this.client = client;
 		this.playerID = id;
+		this.silent = silent;
 	}
 
 	@Override
@@ -39,9 +45,13 @@ class ServerWorker extends Thread {
 		// move
 		if (!GameMap.getInstance().isMoveValid(coord.x, coord.y, (char) ('0' + playerID))) {
         	// TODO: Disqualify
-			System.err.println("doesnt work mate");
+			if (!silent) {
+				System.err.println("doesnt work mate");
+			}
 		}
-		System.err.println("received move: " + coord + " from player" + playerID);
+		if (!silent) {
+			System.out.println("Received move: " + coord + " from Player " + playerID + ".");
+		}
 		GameMap.getInstance().executeMove(coord.x, coord.y,  (char) ('0' + playerID));
 
 		// broadcast move to all other players
@@ -74,6 +84,7 @@ class ServerWorker extends Thread {
 		os.writeInt(5);  // length
 		os.writeInt(1000);  // time limit
 		os.writeByte(0);  // max depth limit; 0 = unlimited
+		os.flush();
 	}
 
 	public void sendPlayerNumber() throws IOException {
@@ -81,17 +92,21 @@ class ServerWorker extends Thread {
 		os.writeByte(2);
 		os.writeInt(1);
 		os.writeByte(playerID);
+		os.flush();
 	}
 
 	public void announceEnd() throws IOException {
 		os.writeByte(7);  // code
 		os.writeInt(0);  // length
+		os.flush();
+
 	}
 
 	public void sendString(byte code, int payloadLength, String payload) throws IOException {
 		os.writeByte(code);
 		os.writeInt(payloadLength);
 		os.writeBytes(payload);
+		os.flush();
 	}
 
 	public void close() {

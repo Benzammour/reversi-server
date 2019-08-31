@@ -2,9 +2,6 @@ package map;
 
 import util.MapUtil;
 
-/**
- * Created by benzammour on April, 2019
- */
 public class GameMap extends GenericMap {
 
 	private static GameMap instance;
@@ -17,8 +14,6 @@ public class GameMap extends GenericMap {
 
 	public void generateMapFromString(String mapString) {
 		String[] mapLines = mapString.lines().toArray(String[]::new);
-
-		System.out.println(mapString);
 
 		// GameMap settings
 		String[] s = mapLines[0].split(" ");

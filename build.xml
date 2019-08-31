@@ -14,7 +14,7 @@
 
     <property name="jar.dir"        value="${build.dir}/jar"/>
     <property name="dist"           location="dist"/>
-    <property name="main-class"     value="ReversiMain"/>
+    <property name="main-class"     value="ServerMain"/>
 
     <path id="classpath">
         <pathelement location="${main.classes.dir}"/>
