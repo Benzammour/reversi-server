@@ -1,40 +1,24 @@
 package map;
 
-
 import util.MapUtil;
 import util.Triplet;
-import util.Tuple;
 
 import java.util.*;
 
 public class GenericMap implements Cloneable {
+    char[][] map;
 
-    protected char[][] map;
+    static int mapHeight;
 
-    protected static int mapHeight;
+    static int mapWidth;
 
-    protected static int mapWidth;
+    int[] numberOfStones; // used to determine winner
 
-    // Is counted up in prepareMapData and in executeMove when going along the enclosed paths
-    protected int[] numberOfStones;
+    private final Set<Triplet> paths = new HashSet<>();
 
-    protected static Map<Triplet, Triplet> transitions = new HashMap<>();
-
-    protected Set<Triplet> paths = new HashSet<>();
-
-    // x, y, r; means first is the x-coord, then y-coord and then the direction
-    protected static final int[][] CORNERS = {{0, -1, 0}, {1, -1, 1}, {1, 0, 2},
+    // x = x-coord; y = x-coord; d = direction;
+    private static final int[][] CORNERS = {{0, -1, 0}, {1, -1, 1}, {1, 0, 2},
             {1, 1, 3}, {0, 1, 4}, {-1, 1, 5}, {-1, 0, 6}, {-1, -1, 7}};
-
-    public void move(int x, int y, char player) {
-        if (!isMoveValid(x, y, player)) {
-            System.err.println("Player " + player + " attempting move at (" + x + ", " + y + ") is not valid!\n"
-                    + "Tile: " + map[y][x]);
-            System.err.println(MapUtil.renderMap(map));
-        }
-
-        executeMove(x, y, player);
-    }
 
     public boolean isMoveValid(int x, int y, char player) {
         paths.clear();
@@ -124,19 +108,11 @@ public class GenericMap implements Cloneable {
         return mapWidth;
     }
 
-    public Map<Triplet, Triplet> getTransitions() {
-        return transitions;
-    }
-
     public int[] getNumberOfStones() {
         return numberOfStones;
     }
 
-    public static int[][] getCORNERS() {
-        return CORNERS;
-    }
-
-    // ---------------------------------  Object Overrides
+    // -----------------------------------------------  Object Overrides
     @Override
     public String toString() {
         return MapUtil.renderMap(map);

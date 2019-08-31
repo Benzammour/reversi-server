@@ -3,23 +3,18 @@ package network;
 
 import map.GameMap;
 import util.MapUtil;
-import util.Tuple;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-// Created by benzammour
 
 public class Server extends Thread {
 
     private final int port;
 
-    private ArrayList<ServerWorker> worker = new ArrayList<>();
+    private final ArrayList<ServerWorker> worker = new ArrayList<>();
 
     public Server(int port) {
         this.port = port;
@@ -98,7 +93,7 @@ public class Server extends Thread {
             turn = (turn + 1) % 2;
         }
 
-        // announce winner & that the game has ended
+        // announce winner & game end
 		System.out.println("Player " + MapUtil.maxNumberOfStones(GameMap.getInstance()) + " has won.");
 		try {
 			for (ServerWorker sw : worker) {
@@ -108,10 +103,15 @@ public class Server extends Thread {
 			e.printStackTrace();
 		}
 
+		// close connection with sockets
+        for (ServerWorker sw : worker) {
+            sw.close();
+        }
+
     }
 
-
-    public ArrayList<ServerWorker> getWorker() {
+    // -----------------------------------------------  Getter/Setter
+    ArrayList<ServerWorker> getWorker() {
         return worker;
     }
 }

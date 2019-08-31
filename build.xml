@@ -52,7 +52,7 @@
 
     <target name="jar" depends="compile">
         <mkdir dir="${jar.dir}"/>
-        <jar destfile="${jar.dir}/${ant.project.name}-group1.jar" basedir="${main.classes.dir}">
+        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${main.classes.dir}">
             <manifest>
                 <attribute name="Main-Class" value="${main-class}"/>
             </manifest>

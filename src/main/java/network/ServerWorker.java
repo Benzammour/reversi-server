@@ -8,15 +8,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-/**
- * Created by benzammour on August, 2019
- */
-public class ServerWorker extends Thread {
+@SuppressWarnings("StatementWithEmptyBody")
+class ServerWorker extends Thread {
 	private final Server server;
-	private Socket client;
+	private final Socket client;
 	private DataInputStream is;
 	private DataOutputStream os;
-	private byte playerID;
+	private final byte playerID;
 
 	ServerWorker(Server server, Socket client, byte id) {
 		this.server = server;
@@ -56,7 +54,7 @@ public class ServerWorker extends Thread {
 		}
 	}
 
-	public Tuple getMoveReponse() throws IOException {
+	private Tuple getMoveReponse() throws IOException {
 		try {
 			if (is.readByte() != 4) { // code (5)
 				// TODO: disqualify
@@ -71,7 +69,7 @@ public class ServerWorker extends Thread {
 		return new Tuple(is.readShort(), is.readShort());
 	}
 
-	public void requestMove() throws IOException {
+	private void requestMove() throws IOException {
 		os.writeByte(3);  // code
 		os.writeInt(5);  // length
 		os.writeInt(1000);  // time limit
@@ -109,15 +107,8 @@ public class ServerWorker extends Thread {
 		return playerID;
 	}
 
-	public Socket getClient() {
-		return client;
-	}
 
-	public DataInputStream getIs() {
-		return is;
-	}
-
-	public DataOutputStream getOs() {
+	private DataOutputStream getOs() {
 		return os;
 	}
 }

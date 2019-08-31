@@ -11,12 +11,12 @@ public class Triplet {
 
     private int y;
 
-    private int r;
+    private int d;
 
     public Triplet(int x, int y, int r) {
         this.x = x;
         this.y = y;
-        this.r = r;
+        this.d = r;
     }
 
     public int getX() {
@@ -25,14 +25,6 @@ public class Triplet {
 
     public int getY() {
         return y;
-    }
-
-    public int getR() {
-        return r;
-    }
-
-    public void setR(int r) {
-        this.r = r;
     }
 
     @Override
@@ -46,21 +38,21 @@ public class Triplet {
         }
 
         Triplet triplet = (Triplet) o;
-        return x == triplet.x && y == triplet.y && r == triplet.r;
+        return x == triplet.x && y == triplet.y && d == triplet.d;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y, r);
+        return Objects.hash(x, y, d);
     }
 
     @Override
     public String toString() {
-        return "(" + x +", " + y + ", " + r + ')';
+        return "(" + x +", " + y + ", " + d + ')';
     }
 
     @Override
     public Triplet clone() {
-        return new Triplet(x, y, r);
+        return new Triplet(x, y, d);
     }
 }

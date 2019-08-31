@@ -1,12 +1,6 @@
 package map;
 
 import util.MapUtil;
-import util.Triplet;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 /**
  * Created by benzammour on April, 2019
@@ -14,8 +8,6 @@ import java.util.stream.Collectors;
 public class GameMap extends GenericMap {
 
 	private static GameMap instance;
-
-	private char player;
 
 	private GameMap() {}
 
