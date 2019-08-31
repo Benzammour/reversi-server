@@ -21,7 +21,7 @@ public class Server extends Thread {
 
     private String mapPath;
 
-    private int timelimit;
+    private int timeLimit;
 
     public Server(int port, boolean silent, String mapPath, int timelimit) {
         this.port = port;
@@ -29,7 +29,7 @@ public class Server extends Thread {
         this.mapPath = mapPath;
         if (!mapPath.equals(""))
             customMap = true;
-        this.timelimit = timelimit;
+        this.timeLimit = timelimit;
     }
 
     @Override
@@ -41,6 +41,7 @@ public class Server extends Thread {
         if (mapPath.equals("")) {
             mapPath = "trivial.txt";
         }
+
         // setup sockets
         ServerSocket serverSocket = null;
         try {
@@ -63,7 +64,7 @@ public class Server extends Thread {
             if (!silent) {
                 System.out.println("Accepted new connection: " + client);
             }
-            ServerWorker sw = new ServerWorker(this, client, clientCount, silent, timelimit);
+            ServerWorker sw = new ServerWorker(this, client, clientCount, silent, timeLimit);
             worker.add(sw);
             sw.start();
         }
@@ -118,7 +119,6 @@ public class Server extends Thread {
 
         // announce winner & game end
         endGame(MapUtil.maxNumberOfStones(GameMap.getInstance()));
-
     }
 
     // -----------------------------------------------  Getter/Setter
@@ -142,5 +142,7 @@ public class Server extends Thread {
         for (ServerWorker sw : worker) {
             sw.close();
         }
+
+        System.exit(0);
     }
 }

@@ -6,8 +6,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Timer;
-import java.util.TimerTask;
 
 class ServerWorker extends Thread {
 	private final Server server;
@@ -24,9 +22,7 @@ class ServerWorker extends Thread {
 
 	private final boolean silent;
 
-	private final boolean[] inTime;
-
-	private Timer timer;
+	private long startTime;
 
 	ServerWorker(Server server, Socket client, byte id, boolean silent, int timelimit) {
 		this.server = server;
@@ -34,8 +30,6 @@ class ServerWorker extends Thread {
 		this.playerID = id;
 		this.silent = silent;
 		this.timelimit = timelimit;
-		inTime = new boolean[]{true};
-		timer = new Timer();
 	}
 
 	@Override
@@ -49,20 +43,11 @@ class ServerWorker extends Thread {
 	}
 
 	public void handleMove() throws IOException {
-		inTime[0] = true;
 		requestMove();
-
-		// checks if clients sends move in time
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				inTime[0] = false;
-			}
-		}, timelimit);
-
+		startTime = System.nanoTime();
 		Tuple coord = getMoveReponse();
 
-		// move
+		// apply move
 		if (!GameMap.getInstance().isMoveValid(coord.x, coord.y, (char) ('0' + playerID))) {
 			if (!silent) {
 				System.err.println("Invalid Move");
@@ -81,6 +66,7 @@ class ServerWorker extends Thread {
 			sw.getOs().writeShort(coord.x);
 			sw.getOs().writeShort(coord.y);
 			sw.getOs().writeByte(playerID);
+			sw.getOs().flush();
 		}
 	}
 
@@ -97,11 +83,6 @@ class ServerWorker extends Thread {
 	}
 
 	private Tuple getMoveReponse() throws IOException {
-		if (!inTime[0]) {
-			System.err.println("Timeout");
-			disqualify(playerID);
-		}
-
 		try {
 			if (is.readByte() != 4) { // code (4)
 				if (!silent) {
@@ -109,7 +90,13 @@ class ServerWorker extends Thread {
 				}
 				disqualify(playerID);
 			}
-			if (is.readInt() != 4) {
+
+			// if response took more than `timelimit` time, disqualify player
+			if ((System.nanoTime() - startTime) / 1000000 > timelimit) {
+				disqualify(playerID);
+			}
+
+			if (is.readInt() != 4) {	// 4 Byte
 				if (!silent) {
 					System.err.println("Sent too much data");
 				}
