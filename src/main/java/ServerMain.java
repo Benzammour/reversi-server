@@ -5,6 +5,7 @@ class ServerMain {
         int port = 8080;
         boolean silent = false;
         String mapName = "";
+        int timelimit = 1000;
 
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
@@ -45,6 +46,6 @@ class ServerMain {
             }
         }
 
-        new Server(port, silent, mapName).start();
+        new Server(port, silent, mapName, timelimit).start();
     }
 }

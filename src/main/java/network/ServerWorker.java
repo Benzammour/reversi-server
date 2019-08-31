@@ -1,18 +1,20 @@
 package network;
 
 import map.GameMap;
-import util.MapUtil;
 import util.Tuple;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Timer;
+import java.util.TimerTask;
 
 class ServerWorker extends Thread {
 	private final Server server;
 
 	private final Socket client;
+
+	private final int timelimit;
 
 	private DataInputStream is;
 
@@ -22,11 +24,18 @@ class ServerWorker extends Thread {
 
 	private final boolean silent;
 
-	ServerWorker(Server server, Socket client, byte id, boolean silent) {
+	private final boolean[] inTime;
+
+	private Timer timer;
+
+	ServerWorker(Server server, Socket client, byte id, boolean silent, int timelimit) {
 		this.server = server;
 		this.client = client;
 		this.playerID = id;
 		this.silent = silent;
+		this.timelimit = timelimit;
+		inTime = new boolean[]{true};
+		timer = new Timer();
 	}
 
 	@Override
@@ -40,7 +49,17 @@ class ServerWorker extends Thread {
 	}
 
 	public void handleMove() throws IOException {
+		inTime[0] = true;
 		requestMove();
+
+		// checks if clients sends move in time
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				inTime[0] = false;
+			}
+		}, timelimit);
+
 		Tuple coord = getMoveReponse();
 
 		// move
@@ -74,9 +93,15 @@ class ServerWorker extends Thread {
 		// announce winner & game end
 		byte id = playerID == 1 ? (byte) 2 : (byte) 1; // if 1 gets disqualified, 2 wins and vice-versa
 		server.endGame((char) ('0' + id));
+		System.exit(0);
 	}
 
 	private Tuple getMoveReponse() throws IOException {
+		if (!inTime[0]) {
+			System.err.println("Timeout");
+			disqualify(playerID);
+		}
+
 		try {
 			if (is.readByte() != 4) { // code (4)
 				if (!silent) {
@@ -100,7 +125,7 @@ class ServerWorker extends Thread {
 	private void requestMove() throws IOException {
 		os.writeByte(3);  // code
 		os.writeInt(5);  // length
-		os.writeInt(1000);  // time limit
+		os.writeInt(timelimit);  // time limit
 		os.writeByte(0);  // max depth limit; 0 = unlimited
 		os.flush();
 	}
