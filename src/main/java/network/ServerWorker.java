@@ -1,6 +1,7 @@
 package network;
 
 import map.GameMap;
+import util.MapUtil;
 import util.Tuple;
 
 import java.io.DataInputStream;
@@ -44,10 +45,10 @@ class ServerWorker extends Thread {
 
 		// move
 		if (!GameMap.getInstance().isMoveValid(coord.x, coord.y, (char) ('0' + playerID))) {
-        	// TODO: Disqualify
 			if (!silent) {
-				System.err.println("doesnt work mate");
+				System.err.println("Invalid Move");
 			}
+			disqualify(playerID);
 		}
 		if (!silent) {
 			System.out.println("Received move: " + coord + " from Player " + playerID + ".");
@@ -64,13 +65,30 @@ class ServerWorker extends Thread {
 		}
 	}
 
+	private void disqualify(byte player) throws IOException {
+		os.writeByte(6);  // code
+		os.writeInt(1);  // length
+		os.writeByte(player);  // max depth limit; 0 = unlimited
+		os.flush();
+
+		// announce winner & game end
+		byte id = playerID == 1 ? (byte) 2 : (byte) 1; // if 1 gets disqualified, 2 wins and vice-versa
+		server.endGame((char) ('0' + id));
+	}
+
 	private Tuple getMoveReponse() throws IOException {
 		try {
-			if (is.readByte() != 4) { // code (5)
-				// TODO: disqualify
+			if (is.readByte() != 4) { // code (4)
+				if (!silent) {
+					System.err.println("Sent wrong code");
+				}
+				disqualify(playerID);
 			}
 			if (is.readInt() != 4) {
-				// TODO: Disqualify
+				if (!silent) {
+					System.err.println("Sent too much data");
+				}
+				disqualify(playerID);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,6 +1,5 @@
 package network;
 
-
 import map.GameMap;
 import util.MapUtil;
 
@@ -39,7 +38,7 @@ public class Server extends Thread {
             mapPath = "trivial.txt";
         }
 
-        String map = "";
+        String map;
         ServerSocket serverSocket = null;
 
         try {
@@ -116,26 +115,30 @@ public class Server extends Thread {
         }
 
         // announce winner & game end
-        if (!silent) {
-            System.out.println("Player " + MapUtil.maxNumberOfStones(GameMap.getInstance()) + " has won.");
-        }
-		try {
-			for (ServerWorker sw : worker) {
-				sw.announceEnd();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// close connection with sockets
-        for (ServerWorker sw : worker) {
-            sw.close();
-        }
+        endGame(MapUtil.maxNumberOfStones(GameMap.getInstance()));
 
     }
 
     // -----------------------------------------------  Getter/Setter
     ArrayList<ServerWorker> getWorker() {
         return worker;
+    }
+
+    void endGame(char winner) {
+        if (!silent) {
+            System.out.println("Player " + winner + " has won.");
+        }
+        try {
+            for (ServerWorker sw : worker) {
+                sw.announceEnd();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // close connection with sockets
+        for (ServerWorker sw : worker) {
+            sw.close();
+        }
     }
 }
