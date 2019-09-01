@@ -22,13 +22,17 @@ Please don't submit PRs to the `master` but instead to the `dev` branch.
 
 ## Authors
 
-* **Samir Benzammour** - *Owner* - [benzammour](https://github.com/benzammour)
+* **Samir Benzammour** - [benzammour](https://github.com/benzammour)
 
-See also the list of [contributors](#) who participated in this project.
+See also the list of [contributors](https://github.com/Benzammour/reversi-server/contributors) who participated in this project.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Acknowledgements
+
+* **i2 Chair**  - [Website](https://moves.rwth-aachen.de/)
 
 ## Footnote
 
