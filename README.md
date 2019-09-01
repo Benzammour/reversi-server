@@ -22,9 +22,9 @@ Please don't submit PRs to the `master` but instead to the `dev` branch.
 
 ## Authors
 
-* **Samir Benzammour** - *Owner* - [benzammour](https://github.com/benzammour)
+* **Samir Benzammour** - [benzammour](https://github.com/benzammour)
 
-See also the list of [contributors](#) who participated in this project.
+See also the list of [contributors](https://github.com/Benzammour/reversi-server/contributors) who participated in this project.
 
 ## License
 
