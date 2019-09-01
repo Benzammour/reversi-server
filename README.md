@@ -30,6 +30,10 @@ See also the list of [contributors](#) who participated in this project.
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
+## Acknowledgements
+
+* **i2 Chair**  - [Website](https://moves.rwth-aachen.de/)
+
 ## Footnote
 
 This project is based on a lab done in university in which we developed AIs to play against each other. However, we used an extremely extended version of the game - which this game is not. I kept this fairly simple (with the extension of hole, see [rules](RULES.md) for more) to enable people to jump right into developing the client without having to read a million rules beforehand.
